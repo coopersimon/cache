@@ -1,0 +1,26 @@
+# using 8 address bits, word size 4, block size 4, set size 2, cache size 8
+# hit time 1, read/write time 2
+# writing to set 0:
+write-req	0	100
+write-req	128	200
+# this should cause a write-back to 0:
+write-req	256 300
+# this should hit, and push 256 to the back of the "queue":
+read-req	128
+# this should miss, and write-back 256.
+read-req	0
+# let's check that the correct block was written back:
+read-req	256
+# this is the next word in a block already in the cache: it should hit
+write-req	4	150
+read-req	4
+# this should hit but it will just have 0 in it
+read-req	8
+
+write-req	16	1000
+write-req	144	1500
+# flush to write-back both the blocks in set 1 that have just been written
+# as well as some things in set 0
+flush-req
+# flushing again should do effectively nothing:
+flush-req
